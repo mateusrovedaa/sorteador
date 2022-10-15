@@ -1,0 +1,57 @@
+version: '3.5'
+
+services:
+  postgres:
+    image: postgres
+    container_name: postgres-container
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /data/postgres
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+  api:
+    build:
+      dockerfile: ./environment/docker/api/Dockerfile
+      context: ..
+    container_name: api-container
+    command: npm run serve
+    environment:
+      - PORT=3000
+      - DB_DATABASE=postgres
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_DIALECT=postgres
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../:/usr/src/app/
+      - /usr/src/app/node_modules
+    networks:
+      - postgres
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  web:
+    image: nginx:latest
+    container_name: web-container
+    ports:
+      - "8080:80"
+    volumes:
+      - ../views:/usr/share/nginx/html/:z
+
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+  postgres:

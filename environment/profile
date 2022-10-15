@@ -1,0 +1,8 @@
+#!/bin/bash
+
+PROJECT=$(basename $(pwd))
+DOCKER_COMPOSE_PATH=environment/docker-compose.yml
+
+alias docker-compose="docker-compose -f ${DOCKER_COMPOSE_PATH} $@"
+alias server="docker-compose up -d postgres api"
+alias web="docker-compose up -d web"
